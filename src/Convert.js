@@ -548,10 +548,15 @@ function Convert() {
                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.1.81/build/pdf.worker.min.js">
                   {isViewPDF && (
                     <div>
-                      <Viewer
-                        fileUrl={urlPDF}
-                        plugins={[defaultLayoutPluginInstance]}
-                      />
+                      <div>
+                        <pre>{JSON.stringify(JSONtestComplex, null, 2)}</pre>
+                      </div>
+                      <div>
+                        <Viewer
+                          fileUrl={urlPDF}
+                          plugins={[defaultLayoutPluginInstance]}
+                        />
+                      </div>
                     </div>
                   )}
                   {!isViewPDF && <div></div>}
