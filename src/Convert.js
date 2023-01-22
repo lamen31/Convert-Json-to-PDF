@@ -16,7 +16,9 @@ function Convert() {
   const [listFont, setListFont] = useState();
   const [optFont, setOptFont] = useState();
   const [fontPDF, setFontPDF] = useState();
-  const [fontSizePDF, setFontSizePDF] = useState();
+  const [imageb64, setImageb64] = useState();
+  const [isImage, setIsImage] = useState(false);
+  const [imageType, setImageType] = useState();
   const [isViewPDF, setIsViewPDF] = useState(false);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const pdf = new jsPDF("p", "pt", "a4");
@@ -36,6 +38,20 @@ function Convert() {
     GeneratePDF();
   };
 
+  const handleChangeAttachment = async (attachment) => {
+    await getBase64(attachment);
+  };
+
+  const getBase64 = (file) => {
+    let resultBase64 = "";
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      resultBase64 = reader.result;
+      setImageb64(resultBase64);
+    };
+  };
+
   const GeneratePDF = () => {
     pdf.text(200, 40, JSONtest.report.title);
     pdf.text(50, 80, "Date");
@@ -50,6 +66,7 @@ function Convert() {
 
     if (JSONtest.report.pages.length > 1) {
       for (var i = 1; i < JSONtest.report.pages.length; i++) {
+        console.log("add page follow report");
         pdf.addPage();
       }
     }
@@ -94,9 +111,15 @@ function Convert() {
         });
       } else if (pages.page === 2) {
         pdf.setPage(pages.page);
-        // pdf.text(50, 140, "Recommendation");
-        // pdf.text(180, 140, ":");
-        pdf.text(30, 140, pages.summary.recommendations);
+        let tmpRecommend = pages.summary.recommendations.split(",");
+        pdf.text(30, 140, tmpRecommend[0] + ",");
+        pdf.text(30, 160, tmpRecommend[1].slice(1));
+      }
+      if (isImage) {
+        console.log("add page follow image");
+        pdf.addPage();
+        pdf.setPage(3);
+        pdf.addImage(imageb64, "JPEG", 30, 40, 450, 0);
       }
     });
     setUrlPDF(pdf.output("datauri", "filename"));
@@ -111,6 +134,14 @@ function Convert() {
     // }
     // qpdf.encrypt(urlPDF, options);
   };
+
+  useEffect(() => {
+    if (imageb64) {
+      setIsImage(true);
+    } else {
+      setIsImage(false);
+    }
+  }, [imageb64]);
 
   useEffect(() => {
     if (listFont) {
@@ -132,6 +163,7 @@ function Convert() {
   useEffect(() => {
     setIsViewPDF(false);
     setListFont(pdf.getFontList());
+    pdf.setFontSize(16);
   }, []);
 
   return (
@@ -143,11 +175,11 @@ function Convert() {
               <Row style={{ textAlign: "center" }}>
                 <h2>CONVERT JSON TO PDF</h2>
               </Row>
-              <Row style={{ justifyContent: "center" }}>
-                <Col md={8}>
+              <Row style={{ display: "flex", justifyContent: "center" }}>
+                <Col>
                   <Row>
                     <Col>
-                      <label>FILENAME </label>
+                      <label>FILENAME</label>
                       <FormGroup>
                         <input
                           name="filename"
@@ -159,8 +191,14 @@ function Convert() {
                       </FormGroup>
                     </Col>
                   </Row>
-                  <Row>
-                    <Col md={5}>
+                  <Row
+                    style={{
+                      display: "flex",
+                      columnGap: "20px",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    <Col>
                       <label>FONT</label>
                       <FormGroup>
                         <select
@@ -185,12 +223,11 @@ function Convert() {
                         </select>
                       </FormGroup>
                     </Col>
-                    <Col md={5}>
-                      <label>FONT SIZE</label>
+                    <Col>
+                      <label>SIZE</label>
                       <FormGroup>
                         <select
                           defaultValue={""}
-                          value={fontSizePDF}
                           onChange={(event) => {
                             handleChangeFontSize(event.target.value);
                           }}
@@ -203,23 +240,36 @@ function Convert() {
                           <option value={12}>12</option>
                           <option value={14}>14</option>
                           <option value={16}>16</option>
-                          {/* {optFont &&
-                            optFont.map((value, index) => (
-                              <option
-                                key={index}
-                                value={value.fontName.toLowerCase()}
-                              >
-                                {value.fontName}
-                              </option>
-                            ))} */}
                         </select>
                       </FormGroup>
                     </Col>
                   </Row>
-                  <Row></Row>
+                  <Row>
+                    <Col>
+                      <label>ATTACHMENT</label>
+                      <FormGroup>
+                        <input
+                          name="attachment"
+                          type={"file"}
+                          accept=".jpeg, .png"
+                          onChange={(event) => {
+                            handleChangeAttachment(event.target.files[0]);
+                          }}
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
-              <Row>
+              <Row
+                style={{
+                  display: "flex",
+                  columnGap: "20px",
+                  marginTop: "1rem",
+                  marginBottom: "3rem",
+                  justifyContent: "center",
+                }}
+              >
                 <Col>
                   <button
                     onClick={() => {
@@ -230,8 +280,6 @@ function Convert() {
                     PRINT
                   </button>
                 </Col>
-              </Row>
-              <Row>
                 <Col>
                   <button
                     onClick={() => {
@@ -253,7 +301,7 @@ function Convert() {
                       />
                     </div>
                   )}
-                  {!isViewPDF && <div>No PDF</div>}
+                  {!isViewPDF && <div></div>}
                 </Worker>
               </Row>
             </Col>

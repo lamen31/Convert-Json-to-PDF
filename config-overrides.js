@@ -1,4 +1,5 @@
 const webpack = require("webpack");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 module.exports = function override(config) {
   const fallback = config.resolve.fallback || {};
@@ -18,6 +19,7 @@ module.exports = function override(config) {
       Buffer: ["buffer", "Buffer"],
     }),
   ]);
+  config.plugins.push(new NodePolyfillPlugin());
   config.ignoreWarnings = [/Failed to parse source map/];
   config.module.rules.push({
     test: /\.(js|mjs|jsx)$/,
