@@ -1,0 +1,55 @@
+{
+  "report": {
+    "title": "Client Financial Analysis",
+    "date": "2022-06-30",
+    "client": {
+      "contact": {
+        "name": "John Doe",
+        "email": "johndoe@example.com",
+        "phone": "123-456-7890",
+        "address": {
+          "street": "123 Main St",
+          "city": "Anytown",
+          "state": "CA",
+          "zip": "98765"
+        }
+      }
+    },
+    "pages": [
+      {
+        "page": 1,
+        "data": {
+          "cashflow": {
+            "income": 50000,
+            "expenses": 40000
+          },
+          "networth": {
+            "assets": 100000,
+            "liabilities": 50000
+          }
+        }
+      },
+      {
+        "page": 2,
+        "data": {
+          "priorities": [
+            "saving for retirement",
+            "paying off debt",
+            "building an emergency fund"
+          ],
+          "budget": {
+            "monthly_income": 4000,
+            "monthly_expenses": 3500,
+            "savings": 500
+          },
+          "insurance": {
+            "product": "term life insurance",
+            "coverage": 500000,
+            "premium": 100
+          },
+          "recommendations": "Based on the client's current financial status, we recommend implementing a savings plan and reducing high-interest debt."
+        }
+      }
+    ]
+  }
+}

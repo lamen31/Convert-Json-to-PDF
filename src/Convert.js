@@ -7,6 +7,7 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Base64 from "./Base64.json";
 import JSONtest from "./JSONtest.json";
+import JSONtestComplex from "./JSONtestComplex.json";
 import { Col, Container, FormGroup, Row } from "reactstrap";
 // var qpdf = require("node-qpdf");
 
@@ -29,13 +30,13 @@ function Convert() {
 
   const handleChangeFontSize = (fontSize) => {
     pdf.setFontSize(parseInt(fontSize));
-    GeneratePDF();
+    GeneratePDFv2();
   };
 
   const handleChangeFont = (font) => {
     setFontPDF(font);
     pdf.setFont(font, "normal");
-    GeneratePDF();
+    GeneratePDFv2();
   };
 
   const handleChangeAttachment = async (attachment) => {
@@ -53,20 +54,26 @@ function Convert() {
   };
 
   const GeneratePDF = () => {
-    pdf.text(200, 40, JSONtest.report.title);
-    pdf.text(50, 80, "Date");
-    pdf.text(180, 80, ":");
-    pdf.text(190, 80, JSONtest.report.date);
-    pdf.text(50, 100, "Name");
-    pdf.text(180, 100, ":");
-    pdf.text(190, 100, JSONtest.report.client.name);
-    pdf.text(50, 120, "Account Number");
-    pdf.text(180, 120, ":");
-    pdf.text(190, 120, JSONtest.report.client.account_number);
+    let length = 0;
+    let initLength = 0;
+    length = length + 40;
+    pdf.text(200, length, JSONtest.report.title);
+    length = length + 40;
+    initLength = length;
+    pdf.text(50, length, "Date");
+    pdf.text(180, length, ":");
+    pdf.text(190, length, JSONtest.report.date);
+    length = length + 20;
+    pdf.text(50, length, "Name");
+    pdf.text(180, length, ":");
+    pdf.text(190, length, JSONtest.report.client.name);
+    length = length + 20;
+    pdf.text(50, length, "Account Number");
+    pdf.text(180, length, ":");
+    pdf.text(190, length, JSONtest.report.client.account_number);
 
     if (JSONtest.report.pages.length > 1) {
       for (var i = 1; i < JSONtest.report.pages.length; i++) {
-        console.log("add page follow report");
         pdf.addPage();
       }
     }
@@ -79,8 +86,9 @@ function Convert() {
           let tmp = [element.category, element.amount];
           rows.push(tmp);
         });
+        length = length + 40;
         pdf.autoTable(columns, rows, {
-          startY: 140,
+          startY: length,
           theme: "grid",
           styles: {
             font: "times",
@@ -111,22 +119,267 @@ function Convert() {
         });
       } else if (pages.page === 2) {
         pdf.setPage(pages.page);
+        length = initLength;
         let tmpRecommend = pages.summary.recommendations.split(",");
-        pdf.text(30, 140, tmpRecommend[0] + ",");
-        pdf.text(30, 160, tmpRecommend[1].slice(1));
+        pdf.text(50, length, "Recommendations:");
+        length = length + 20;
+        pdf.text(30, length, tmpRecommend[0] + ",");
+        length = length + 20;
+        pdf.text(30, length, tmpRecommend[1].slice(1));
       }
       if (isImage) {
-        console.log("add page follow image");
         pdf.addPage();
         pdf.setPage(3);
-        pdf.addImage(imageb64, "JPEG", 30, 40, 450, 0);
+        length = initLength;
+        pdf.addImage(imageb64, "JPEG", 30, length, 450, 0);
+      }
+    });
+    setUrlPDF(pdf.output("datauri", "filename"));
+  };
+
+  const GeneratePDFv2 = () => {
+    let length = 0;
+    let initLength = 0;
+    length = length + 40;
+    pdf.text(200, length, JSONtestComplex.report.title);
+    length = length + 40;
+    initLength = length;
+    pdf.text(50, length, "Date");
+    pdf.text(120, length, ":");
+    pdf.text(140, length, JSONtestComplex.report.date);
+    length = length + 20;
+    pdf.text(50, length, "Name");
+    pdf.text(120, length, ":");
+    pdf.text(140, length, JSONtestComplex.report.client.contact.name);
+    length = length + 20;
+    pdf.text(50, length, "Phone");
+    pdf.text(120, length, ":");
+    pdf.text(140, length, JSONtestComplex.report.client.contact.phone);
+    length = length + 20;
+    pdf.text(50, length, "Email");
+    pdf.text(120, length, ":");
+    pdf.text(140, length, JSONtestComplex.report.client.contact.email);
+    length = length + 20;
+    pdf.text(50, length, "Address");
+    pdf.text(120, length, ":");
+    pdf.text(
+      140,
+      length,
+      JSONtestComplex.report.client.contact.address.street +
+        ", " +
+        JSONtestComplex.report.client.contact.address.city +
+        ","
+    );
+    length = length + 20;
+    pdf.text(
+      140,
+      length,
+      JSONtestComplex.report.client.contact.address.state +
+        " " +
+        JSONtestComplex.report.client.contact.address.zip
+    );
+
+    if (JSONtestComplex.report.pages.length > 1) {
+      for (var i = 1; i < JSONtestComplex.report.pages.length; i++) {
+        pdf.addPage();
+      }
+    }
+    JSONtestComplex.report.pages.forEach((pages) => {
+      if (pages.page === 1) {
+        pdf.setPage(pages.page);
+        const columnsMain = Object.keys(pages.data);
+        const columns1 = Object.keys(pages.data.cashflow);
+        const columns2 = Object.keys(pages.data.networth);
+        let rows1 = [];
+        let tmp1 = [pages.data.cashflow.income, pages.data.cashflow.expenses];
+        rows1.push(tmp1);
+        let rows2 = [];
+        let tmp2 = [
+          pages.data.networth.assets,
+          pages.data.networth.liabilities,
+        ];
+        rows2.push(tmp2);
+        length = length + 40;
+        pdf.text(50, length, columnsMain[0] + ":");
+        length = length + 20;
+        pdf.autoTable(columns1, rows1, {
+          startY: length,
+          theme: "grid",
+          styles: {
+            font: "times",
+            halign: "center",
+            cellPadding: 3.5,
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+          },
+          headStyles: {
+            textColor: [0, 0, 0],
+            fontStyle: "normal",
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            fillColor: [166, 204, 247],
+          },
+          alternateRowStyles: {
+            fillColor: [212, 212, 212],
+            textColor: [0, 0, 0],
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          rowStyles: {
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          tableLineColor: [0, 0, 0],
+          didDrawPage: (d) => (length = d.cursor.y),
+        });
+        length = length + 40;
+        pdf.text(50, length, columnsMain[1] + ":");
+        length = length + 20;
+        pdf.autoTable(columns2, rows2, {
+          startY: length,
+          theme: "grid",
+          styles: {
+            font: "times",
+            halign: "center",
+            cellPadding: 3.5,
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+          },
+          headStyles: {
+            textColor: [0, 0, 0],
+            fontStyle: "normal",
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            fillColor: [166, 204, 247],
+          },
+          alternateRowStyles: {
+            fillColor: [212, 212, 212],
+            textColor: [0, 0, 0],
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          rowStyles: {
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          tableLineColor: [0, 0, 0],
+          didDrawPage: (d) => (length = d.cursor.y),
+        });
+      } else if (pages.page === 2) {
+        pdf.setPage(pages.page);
+        length = initLength;
+        let columnsMain2 = Object.keys(pages.data);
+        let columns3 = Object.keys(pages.data.budget);
+        let columns4 = Object.keys(pages.data.insurance);
+        let rows3 = [];
+        let tmp3 = [
+          pages.data.budget.monthly_income,
+          pages.data.budget.monthly_expenses,
+          pages.data.budget.savings,
+        ];
+        rows3.push(tmp3);
+        let rows4 = [];
+        let tmp4 = [
+          pages.data.insurance.product,
+          pages.data.insurance.coverage,
+          pages.data.insurance.premium,
+        ];
+        rows4.push(tmp4);
+        pdf.text(50, length, columnsMain2[0] + ":");
+        pages.data.priorities.forEach((element) => {
+          length = length + 20;
+          pdf.text(50, length, "- " + element);
+        });
+        length = length + 40;
+        pdf.text(50, length, columnsMain2[1] + ":");
+        length = length + 20;
+        pdf.autoTable(columns3, rows3, {
+          startY: length,
+          theme: "grid",
+          styles: {
+            font: "times",
+            halign: "center",
+            cellPadding: 3.5,
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+          },
+          headStyles: {
+            textColor: [0, 0, 0],
+            fontStyle: "normal",
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            fillColor: [166, 204, 247],
+          },
+          alternateRowStyles: {
+            fillColor: [212, 212, 212],
+            textColor: [0, 0, 0],
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          rowStyles: {
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          tableLineColor: [0, 0, 0],
+          didDrawPage: (d) => (length = d.cursor.y),
+        });
+        length = length + 40;
+        pdf.text(50, length, columnsMain2[2] + ":");
+        length = length + 20;
+        pdf.autoTable(columns4, rows4, {
+          startY: length,
+          theme: "grid",
+          styles: {
+            font: "times",
+            halign: "center",
+            cellPadding: 3.5,
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            textColor: [0, 0, 0],
+          },
+          headStyles: {
+            textColor: [0, 0, 0],
+            fontStyle: "normal",
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+            fillColor: [166, 204, 247],
+          },
+          alternateRowStyles: {
+            fillColor: [212, 212, 212],
+            textColor: [0, 0, 0],
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          rowStyles: {
+            lineWidth: 0.5,
+            lineColor: [0, 0, 0],
+          },
+          tableLineColor: [0, 0, 0],
+          didDrawPage: (d) => (length = d.cursor.y),
+        });
+        length = length + 40;
+        let tmpRecommend = pages.data.recommendations.split(",");
+        pdf.text(50, length, columnsMain2[3] + ":");
+        length = length + 20;
+        pdf.text(30, length, tmpRecommend[0] + ",");
+        length = length + 20;
+        pdf.text(30, length, tmpRecommend[1].slice(1));
+      }
+      if (isImage) {
+        pdf.addPage();
+        pdf.setPage(3);
+        length = initLength;
+        pdf.addImage(imageb64, "JPEG", 30, length, 450, 0);
       }
     });
     setUrlPDF(pdf.output("datauri", "filename"));
   };
 
   const Print = (filename) => {
-    GeneratePDF();
+    GeneratePDFv2();
     // if (filename) {
     //   pdf.save(filename);
     // } else {
@@ -284,7 +537,7 @@ function Convert() {
                   <button
                     onClick={() => {
                       setIsViewPDF(true);
-                      GeneratePDF();
+                      GeneratePDFv2();
                     }}
                   >
                     GENERATE

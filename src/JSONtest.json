@@ -1,35 +1,35 @@
 {
-    "report": {
-      "title": "Client Financial Analysis",
-      "date": "2022-06-30",
-      "client": {
-        "name": "John Doe",
-        "account_number": "1234567890"
-      },
-      "pages": [
-        {
-          "page": 1,
-          "data": [
-            {
-              "category": "Assets",
-              "amount": 123456.78
-            },
-            {
-              "category": "Liabilities",
-              "amount": 98765.43
-            },
-            {
-              "category": "Net Worth",
-              "amount": 113722.35
-            }
-          ]
-        },
-        {
-          "page": 2,
-          "summary": {
-            "recommendations": "Based on the client's current financial status, we recommend implementing a savings plan and reducing high-interest debt."
+  "report": {
+    "title": "Client Financial Analysis",
+    "date": "2022-06-30",
+    "client": {
+      "name": "John Doe",
+      "account_number": "1234567890"
+    },
+    "pages": [
+      {
+        "page": 1,
+        "data": [
+          {
+            "category": "Assets",
+            "amount": 123456.78
+          },
+          {
+            "category": "Liabilities",
+            "amount": 98765.43
+          },
+          {
+            "category": "Net Worth",
+            "amount": 113722.35
           }
+        ]
+      },
+      {
+        "page": 2,
+        "summary": {
+          "recommendations": "Based on the client's current financial status, we recommend implementing a savings plan and reducing high-interest debt."
         }
-      ]
-    }
+      }
+    ]
   }
+}
