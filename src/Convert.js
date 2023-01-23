@@ -8,10 +8,10 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Base64 from "./Base64.json";
 import JSONtest from "./JSONtest.json";
 import JSONtestComplex from "./JSONtestComplex.json";
-import { Col, Container, FormGroup, Row } from "reactstrap";
+import { Col, Container, FormGroup, Label, Row } from "reactstrap";
 import moment from "moment";
 import "moment-timezone";
-var qpdf = require("node-qpdf");
+// var qpdf = require("node-qpdf");
 
 function Convert() {
   const [urlPDF, setUrlPDF] = useState();
@@ -25,10 +25,6 @@ function Convert() {
   const [isViewPDF, setIsViewPDF] = useState(false);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const pdf = new jsPDF("p", "pt", "a4");
-  const options = {
-    keyLength: 128,
-    password: "007007",
-  };
 
   const handleChangeFontSize = (fontSize) => {
     pdf.setFontSize(parseInt(fontSize));
@@ -192,6 +188,7 @@ function Convert() {
     JSONtestComplex.report.pages.forEach((pages) => {
       if (pages.page === 1) {
         pdf.setPage(pages.page);
+        pdf.text(250, 820, "page " + pages.page);
         const columnsMain = Object.keys(pages.data);
         const columns1 = Object.keys(pages.data.cashflow);
         const columns2 = Object.keys(pages.data.networth);
@@ -274,6 +271,7 @@ function Convert() {
         });
       } else if (pages.page === 2) {
         pdf.setPage(pages.page);
+        pdf.text(250, 820, "page " + pages.page);
         length = initLength;
         let columnsMain2 = Object.keys(pages.data);
         let columns3 = Object.keys(pages.data.budget);
@@ -375,6 +373,7 @@ function Convert() {
       }
       if (isImage) {
         pdf.setPage(3);
+        pdf.text(250, 820, "page " + 3);
         length = initLength;
         pdf.addImage(imageb64, "JPEG", 30, length, 300, 0);
       }
@@ -393,15 +392,15 @@ function Convert() {
         moment(new Date()).tz("Asia/Jakarta").format("DD-MM-YYYY HH:mm:ss.SSS");
     }
     pdf.save(name_file + ".pdf");
-    var options = {
-      keyLength: 40,
-      password: "007007007",
-    };
-    await qpdf.encrypt(
-      "C:/Users/user/Downloads/" + name_file + ".pdf",
-      options,
-      "C:/Users/user/Downloads/" + name_file + "_encrypted.pdf"
-    );
+    // var options = {
+    //   keyLength: 40,
+    //   password: "007007007",
+    // };
+    // await qpdf.encrypt(
+    //   "C:/Users/user/Downloads/" + name_file + ".pdf",
+    //   options,
+    //   "C:/Users/user/Downloads/" + name_file + "_encrypted.pdf"
+    // );
   };
 
   useEffect(() => {
@@ -513,9 +512,14 @@ function Convert() {
                       </FormGroup>
                     </Col>
                   </Row>
-                  <Row>
+                  <Row
+                    style={{
+                      display: "flex",
+                      marginTop: "0.5rem",
+                    }}
+                  >
                     <Col>
-                      <label>ATTACHMENT</label>
+                      <label>IMAGE ATTACHMENT</label>
                       <FormGroup>
                         <input
                           name="attachment"
@@ -564,15 +568,21 @@ function Convert() {
                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.1.81/build/pdf.worker.min.js">
                   {isViewPDF && (
                     <div>
-                      <div>
+                      <Row>
+                        <h4 style={{ fontWeight: "bold" }}>JSON VIEW:</h4>
+                      </Row>
+                      <Row>
                         <pre>{JSON.stringify(JSONtestComplex, null, 2)}</pre>
-                      </div>
-                      <div>
+                      </Row>
+                      <Row>
+                        <h4 style={{ fontWeight: "bold" }}>PDF VIEW:</h4>
+                      </Row>
+                      <Row>
                         <Viewer
                           fileUrl={urlPDF}
                           plugins={[defaultLayoutPluginInstance]}
                         />
-                      </div>
+                      </Row>
                     </div>
                   )}
                   {!isViewPDF && <div></div>}
