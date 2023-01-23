@@ -9,7 +9,9 @@ import Base64 from "./Base64.json";
 import JSONtest from "./JSONtest.json";
 import JSONtestComplex from "./JSONtestComplex.json";
 import { Col, Container, FormGroup, Row } from "reactstrap";
-// var qpdf = require("node-qpdf");
+import moment from "moment";
+import "moment-timezone";
+var qpdf = require("node-qpdf");
 
 function Convert() {
   const [urlPDF, setUrlPDF] = useState();
@@ -183,6 +185,9 @@ function Convert() {
       for (var i = 1; i < JSONtestComplex.report.pages.length; i++) {
         pdf.addPage();
       }
+    }
+    if (isImage) {
+      pdf.addPage();
     }
     JSONtestComplex.report.pages.forEach((pages) => {
       if (pages.page === 1) {
@@ -369,23 +374,34 @@ function Convert() {
         pdf.text(30, length, tmpRecommend[1].slice(1));
       }
       if (isImage) {
-        pdf.addPage();
         pdf.setPage(3);
         length = initLength;
-        pdf.addImage(imageb64, "JPEG", 30, length, 450, 0);
+        pdf.addImage(imageb64, "JPEG", 30, length, 300, 0);
       }
     });
     setUrlPDF(pdf.output("datauri", "filename"));
   };
 
-  const Print = (filename) => {
+  const Print = async (filename) => {
     GeneratePDFv2();
-    // if (filename) {
-    //   pdf.save(filename);
-    // } else {
-    //   pdf.save(" ");
-    // }
-    // qpdf.encrypt(urlPDF, options);
+    let name_file;
+    if (filename) {
+      name_file = filename;
+    } else {
+      name_file =
+        "convert_json_to_pdf_" +
+        moment(new Date()).tz("Asia/Jakarta").format("DD-MM-YYYY HH:mm:ss.SSS");
+    }
+    pdf.save(name_file + ".pdf");
+    var options = {
+      keyLength: 40,
+      password: "007007007",
+    };
+    await qpdf.encrypt(
+      "C:/Users/user/Downloads/" + name_file + ".pdf",
+      options,
+      "C:/Users/user/Downloads/" + name_file + "_encrypted.pdf"
+    );
   };
 
   useEffect(() => {
