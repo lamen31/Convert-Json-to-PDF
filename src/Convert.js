@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+import * as React from "react";
 import {
   Worker,
   Viewer,
   ScrollMode,
-  DocumentAskPasswordEvent,
   PasswordStatus,
-  PrimaryButton,
-  TextBox,
 } from "@react-pdf-viewer/core";
 import type { RenderProtectedViewProps } from "@react-pdf-viewer/core";
-// import { PasswordStatus, PrimaryButton, TextBox } from '@react-pdf-viewer/core';
-// import type { DocumentAskPasswordEvent } from "@react-pdf-viewer/core";
+import type { DocumentAskPasswordEvent } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -26,28 +23,50 @@ import { Col, Container, FormGroup, Label, Row } from "reactstrap";
 import moment from "moment";
 import "moment-timezone";
 
-// const ProtectedView = ({ passwordStatus, verifyPassword }) => {
-//   const [password, setPassword] = React.useState('');
-//   const submit = (): void => verifyPassword(password);
+const ProtectedView: React.FC<RenderProtectedViewProps> = ({
+  passwordStatus,
+  verifyPassword,
+}) => {
+  const [password, setPassword] = useState("");
+  const submit = (): void => verifyPassword(password);
 
-//   return (
-//       {/* Input to enter the password */}
-//       <TextBox
-//           placeholder={"Enter the password ..."}
-//           type="password"
-//           value={password}
-//           onChange={setPassword}
-//       />
+  return (
+    <div
+      style={{
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        height: "100%",
+        width: "100%",
+      }}
+    >
+      <div style={{ width: "20rem" }}>
+        <div style={{ marginBottom: "0.5rem" }}>
+          {/* Input to enter the password */}
+          <FormGroup>
+            <input
+              name="password"
+              type="password"
+              value={password}
+              onChange={setPassword}
+            />
+          </FormGroup>
+        </div>
 
-//       {/* Tell users if the password is incorrect */}
-//       {passwordStatus === PasswordStatus.WrongPassword && (
-//           <div>The password is invalid. Please try again!</div>
-//       )}
+        {/* Tell users if the password is incorrect */}
+        {passwordStatus === passwordStatus.WrongPassword && (
+          <div style={{ color: "c02424", marginBottom: "0.5rem" }}>
+            The password is invalid. Please try again!
+          </div>
+        )}
 
-//       {/* Submit the password */}
-//       <PrimaryButton onClick={submit}>Submit</PrimaryButton>
-//   );
-// };
+        {/* Submit the password */}
+        <button onClick={submit}>Submit</button>
+      </div>
+    </div>
+  );
+};
 
 const Convert = () => {
   const [urlPDF, setUrlPDF] = useState();
@@ -55,29 +74,39 @@ const Convert = () => {
   const [listFont, setListFont] = useState();
   const [optFont, setOptFont] = useState();
   const [fontPDF, setFontPDF] = useState();
+  const [fontSizePDF, setFontSizePDF] = useState();
   const [imageb64, setImageb64] = useState();
+  const [password, setPassword] = useState();
   const [isImage, setIsImage] = useState(false);
   const [isHeader, setIsHeader] = useState(false);
   const [isFooter, setIsFooter] = useState(false);
+  const [isAuthenticate, setIsAuthenticate] = useState(false);
+  const [isWrongPass, setIsWrongPass] = useState(false);
   const [jsonData, setJsonData] = useState();
   const [isViewPDF, setIsViewPDF] = useState(false);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const pdf = new jsPDF("p", "pt", "a4");
 
   const handleAskPassword = (e: DocumentAskPasswordEvent) => {
-    e.verifyPassword("The password goes here");
-    // console.log("document ask password event ", DocumentAskPasswordEvent);
+    e.verifyPassword("123456");
+  };
+
+  const handleSubmitPassword = () => {
+    if (password === "123456") {
+      setIsAuthenticate(true);
+    } else {
+      setIsWrongPass(true);
+    }
   };
 
   const handleChangeFontSize = (fontSize) => {
-    pdf.setFontSize(parseInt(fontSize));
-    GeneratePDFv2(jsonData, isHeader, isFooter);
+    setFontSizePDF(fontSize);
+    GeneratePDFv2(jsonData, isHeader, isFooter, fontPDF, fontSize);
   };
 
   const handleChangeFont = (font) => {
     setFontPDF(font);
-    pdf.setFont(font, "normal");
-    GeneratePDFv2(jsonData, isHeader, isFooter);
+    GeneratePDFv2(jsonData, isHeader, isFooter, font, fontSizePDF);
   };
 
   const handleChangeAttachment = async (attachment) => {
@@ -178,9 +207,11 @@ const Convert = () => {
     setUrlPDF(pdf.output("datauri", "filename"));
   };
 
-  const GeneratePDFv2 = (data, isHeader, isFooter) => {
+  const GeneratePDFv2 = (data, isHeader, isFooter, font, fontSize) => {
     let length = 40;
     let initLength = 0;
+    pdf.setFont(font, "normal");
+    pdf.setFontSize(parseInt(fontSize));
     length = length + 40;
     initLength = length;
     pdf.text(50, length, "Date");
@@ -227,7 +258,6 @@ const Convert = () => {
     data.pages.forEach((pages) => {
       if (pages.page === 1) {
         pdf.setPage(pages.page);
-        // pdf.text(250, 820, "page " + pages.page);
         const columnsMain = Object.keys(pages.data);
         const columns1 = Object.keys(pages.data.cashflow[0]);
         const columns2 = Object.keys(pages.data.networth[0]);
@@ -248,7 +278,7 @@ const Convert = () => {
           startY: length,
           theme: "grid",
           styles: {
-            font: "times",
+            font: font,
             halign: "center",
             cellPadding: 3.5,
             lineWidth: 0.5,
@@ -282,7 +312,7 @@ const Convert = () => {
           startY: length,
           theme: "grid",
           styles: {
-            font: "times",
+            font: font,
             halign: "center",
             cellPadding: 3.5,
             lineWidth: 0.5,
@@ -311,7 +341,6 @@ const Convert = () => {
         });
       } else if (pages.page === 2) {
         pdf.setPage(pages.page);
-        // pdf.text(250, 820, "page " + pages.page);
         length = initLength;
         let columnsMain2 = Object.keys(pages.data);
         let columns3 = Object.keys(pages.data.budget[0]);
@@ -342,7 +371,7 @@ const Convert = () => {
           startY: length,
           theme: "grid",
           styles: {
-            font: "times",
+            font: font,
             halign: "center",
             cellPadding: 3.5,
             lineWidth: 0.5,
@@ -376,7 +405,7 @@ const Convert = () => {
           startY: length,
           theme: "grid",
           styles: {
-            font: "times",
+            font: font,
             halign: "center",
             cellPadding: 3.5,
             lineWidth: 0.5,
@@ -413,7 +442,6 @@ const Convert = () => {
       }
       if (isImage) {
         pdf.setPage(3);
-        // pdf.text(250, 820, "page " + 3);
         length = initLength;
         pdf.addImage(imageb64, "JPEG", 30, length, 300, 0);
       }
@@ -439,11 +467,11 @@ const Convert = () => {
         );
       }
     }
-    setUrlPDF(pdf.output("datauri", "filename"));
+    setUrlPDF(pdf.output("dataurlstring", "filename"));
   };
 
   const Print = async (filename) => {
-    GeneratePDFv2(jsonData, isHeader, isFooter);
+    GeneratePDFv2(jsonData, isHeader, isFooter, fontPDF, fontSizePDF);
     let name_file;
     if (filename) {
       name_file = filename;
@@ -453,30 +481,6 @@ const Convert = () => {
         moment(new Date()).tz("Asia/Jakarta").format("DD-MM-YYYY HH:mm:ss.SSS");
     }
     pdf.save(name_file + ".pdf");
-    encryptPDF(name_file);
-  };
-
-  const encryptPDF = (filename) => {
-    // var options = {
-    //   keyLength: 40,
-    //   password: "007007007",
-    // };
-    // await qpdf.encrypt(
-    //   "C:/Users/user/Downloads/" + filename + ".pdf",
-    //   options,
-    //   "C:/Users/user/Downloads/" + filename + "_encrypted.pdf"
-    // );
-    // const pdfDoc = new HummusRecipe(
-    //   "C:/Users/user/Downloads/" + filename + ".pdf",
-    //   "C:/Users/user/Downloads/" + filename + "_encrypted.pdf"
-    // );
-    // pdfDoc
-    //   .encrypt({
-    //     userPassword: "123",
-    //     ownerPassword: "123",
-    //     userProtectionFlag: 4,
-    //   })
-    //   .endPDF();
   };
 
   useEffect(() => {
@@ -507,7 +511,7 @@ const Convert = () => {
   useEffect(() => {
     setIsViewPDF(false);
     setListFont(pdf.getFontList());
-    pdf.setFontSize(16);
+    setFontSizePDF(16);
     setJsonData(JSONtestComplex.report);
   }, []);
 
@@ -520,6 +524,85 @@ const Convert = () => {
               <Row style={{ textAlign: "center" }}>
                 <h2>CONVERT JSON TO PDF</h2>
               </Row>
+              <Row>
+                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.2.146/build/pdf.worker.min.js">
+                  {isViewPDF && (
+                    <div>
+                      {!isAuthenticate && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                            height: "100%",
+                            width: "100%",
+                          }}
+                        >
+                          <div style={{ width: "20rems" }}>
+                            <div style={{ marginBottom: "0.5rem" }}>
+                              <label>PASSWORD</label>
+                              <FormGroup>
+                                <input
+                                  name="password"
+                                  type={"password"}
+                                  value={password}
+                                  onChange={(event) => {
+                                    setPassword(event.target.value);
+                                  }}
+                                />
+                              </FormGroup>
+                            </div>
+                            {isWrongPass && (
+                              <div
+                                style={{
+                                  color: "c02424",
+                                  marginBottom: "0.5rem",
+                                }}
+                              >
+                                The password is invalid. Please try again!
+                              </div>
+                            )}
+                            <button onClick={() => handleSubmitPassword()}>
+                              Submit
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {isAuthenticate && (
+                        <div style={{ height: "750px" }}>
+                          <Viewer
+                            fileUrl={urlPDF}
+                            renderProtectedView={(renderProps) => (
+                              <ProtectedView {...renderProps} />
+                            )}
+                            onDocumentAskPassword={handleAskPassword}
+                            // plugins={[defaultLayoutPluginInstance]}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {!isViewPDF && <div></div>}
+                </Worker>
+              </Row>
+              {jsonData && (
+                <Row>
+                  <Editor
+                    value={jsonData}
+                    onChange={(event) => {
+                      setJsonData(event);
+                      GeneratePDFv2(
+                        event,
+                        isHeader,
+                        isFooter,
+                        fontPDF,
+                        fontSizePDF
+                      );
+                    }}
+                  />
+                </Row>
+              )}
               <Row style={{ display: "flex", justifyContent: "center" }}>
                 <Col>
                   <Row>
@@ -547,7 +630,6 @@ const Convert = () => {
                       <label>FONT</label>
                       <FormGroup>
                         <select
-                          defaultValue={""}
                           value={fontPDF}
                           onChange={(event) => {
                             handleChangeFont(event.target.value);
@@ -572,7 +654,7 @@ const Convert = () => {
                       <label>SIZE</label>
                       <FormGroup>
                         <select
-                          defaultValue={""}
+                          value={fontSizePDF}
                           onChange={(event) => {
                             handleChangeFontSize(event.target.value);
                           }}
@@ -629,7 +711,9 @@ const Convert = () => {
                                 GeneratePDFv2(
                                   jsonData,
                                   event.target.checked,
-                                  isFooter
+                                  isFooter,
+                                  fontPDF,
+                                  fontSizePDF
                                 );
                               }}
                             />
@@ -647,7 +731,9 @@ const Convert = () => {
                                 GeneratePDFv2(
                                   jsonData,
                                   isHeader,
-                                  event.target.checked
+                                  event.target.checked,
+                                  fontPDF,
+                                  fontSizePDF
                                 );
                               }}
                             />
@@ -682,40 +768,18 @@ const Convert = () => {
                   <button
                     onClick={() => {
                       setIsViewPDF(true);
-                      GeneratePDFv2(jsonData, isHeader, isFooter);
+                      GeneratePDFv2(
+                        jsonData,
+                        isHeader,
+                        isFooter,
+                        fontPDF,
+                        fontSizePDF
+                      );
                     }}
                   >
                     GENERATE
                   </button>
                 </Col>
-              </Row>
-              <Row>
-                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.1.81/build/pdf.worker.min.js">
-                  {isViewPDF && (
-                    <div>
-                      <Row>
-                        <Editor
-                          value={jsonData}
-                          onChange={(event) => {
-                            setJsonData(event);
-                            GeneratePDFv2(event, isHeader, isFooter);
-                          }}
-                        />
-                      </Row>
-                      <Row>
-                        <Viewer
-                          fileUrl={urlPDF}
-                          // renderProtectedView={(renderProps) => (
-                          //   <ProtectedView {...renderProps} />
-                          // )}
-                          onDocumentAskPassword={handleAskPassword}
-                          plugins={[defaultLayoutPluginInstance]}
-                        />
-                      </Row>
-                    </div>
-                  )}
-                  {!isViewPDF && <div></div>}
-                </Worker>
               </Row>
             </Col>
           </Row>
