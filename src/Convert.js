@@ -259,186 +259,123 @@ const Convert = () => {
       if (pages.page === 1) {
         pdf.setPage(pages.page);
         const columnsMain = Object.keys(pages.data);
-        const columns1 = Object.keys(pages.data.cashflow[0]);
-        const columns2 = Object.keys(pages.data.networth[0]);
-        let rows1 = [];
-        pages.data.cashflow.forEach((element) => {
-          let tmp1 = [element.income, element.expenses];
-          rows1.push(tmp1);
-        });
-        let rows2 = [];
-        pages.data.networth.forEach((element) => {
-          let tmp2 = [element.assets, element.liabilities];
-          rows2.push(tmp2);
-        });
-        length = length + 40;
-        pdf.text(50, length, columnsMain[0] + ":");
-        length = length + 20;
-        pdf.autoTable(columns1, rows1, {
-          startY: length,
-          theme: "grid",
-          styles: {
-            font: font,
-            halign: "center",
-            cellPadding: 3.5,
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            textColor: [0, 0, 0],
-          },
-          headStyles: {
-            textColor: [0, 0, 0],
-            fontStyle: "normal",
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            fillColor: [166, 204, 247],
-          },
-          alternateRowStyles: {
-            fillColor: [212, 212, 212],
-            textColor: [0, 0, 0],
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          rowStyles: {
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          tableLineColor: [0, 0, 0],
-          didDrawPage: (d) => (length = d.cursor.y),
-        });
-        length = length + 40;
-        pdf.text(50, length, columnsMain[1] + ":");
-        length = length + 20;
-        pdf.autoTable(columns2, rows2, {
-          startY: length,
-          theme: "grid",
-          styles: {
-            font: font,
-            halign: "center",
-            cellPadding: 3.5,
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            textColor: [0, 0, 0],
-          },
-          headStyles: {
-            textColor: [0, 0, 0],
-            fontStyle: "normal",
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            fillColor: [166, 204, 247],
-          },
-          alternateRowStyles: {
-            fillColor: [212, 212, 212],
-            textColor: [0, 0, 0],
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          rowStyles: {
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          tableLineColor: [0, 0, 0],
-          didDrawPage: (d) => (length = d.cursor.y),
+        let count = 0;
+        Object.keys(pages.data).forEach(function (key1) {
+          const column = Object.keys(pages.data[key1][0]);
+          let row = [];
+          pages.data[key1].forEach((element) => {
+            var childData = [];
+            Object.keys(element).forEach(function (key2) {
+              childData.push(element[key2]);
+            });
+            row.push(childData);
+          });
+          length = length + 40;
+          pdf.text(50, length, columnsMain[count] + ":");
+          length = length + 20;
+          pdf.autoTable(column, row, {
+            startY: length,
+            theme: "grid",
+            styles: {
+              font: font,
+              halign: "center",
+              cellPadding: 3.5,
+              lineWidth: 0.5,
+              lineColor: [0, 0, 0],
+              textColor: [0, 0, 0],
+            },
+            headStyles: {
+              textColor: [0, 0, 0],
+              fontStyle: "normal",
+              lineWidth: 0.5,
+              lineColor: [0, 0, 0],
+              fillColor: [166, 204, 247],
+            },
+            alternateRowStyles: {
+              fillColor: [212, 212, 212],
+              textColor: [0, 0, 0],
+              lineWidth: 0.5,
+              lineColor: [0, 0, 0],
+            },
+            rowStyles: {
+              lineWidth: 0.5,
+              lineColor: [0, 0, 0],
+            },
+            tableLineColor: [0, 0, 0],
+            didDrawPage: (d) => (length = d.cursor.y),
+          });
+          count = count + 1;
         });
       } else if (pages.page === 2) {
         pdf.setPage(pages.page);
         length = initLength;
         let columnsMain2 = Object.keys(pages.data);
-        let columns3 = Object.keys(pages.data.budget[0]);
-        let columns4 = Object.keys(pages.data.insurance[0]);
-        let rows3 = [];
-        pages.data.budget.forEach((element) => {
-          let tmp3 = [
-            element.monthly_income,
-            element.monthly_expenses,
-            element.savings,
-          ];
-          rows3.push(tmp3);
+        let count2 = 0;
+        let count3 = 0;
+        Object.keys(pages.data).forEach(function (key3) {
+          if (count2 === 0) {
+            pdf.text(50, length, columnsMain2[count2] + ":");
+            pages.data[key3].forEach((elementText) => {
+              length = length + 20;
+              pdf.text(50, length, "- " + elementText);
+            });
+            count2 = count2 + 1;
+          } else if (count2 === Object.keys(pages.data).length - 1) {
+            length = length + 40;
+            let tmpRecommend = pages.data[key3].split(",");
+            pdf.text(50, length, columnsMain2[count2] + ":");
+            length = length + 20;
+            pdf.text(30, length, tmpRecommend[0] + ",");
+            length = length + 20;
+            pdf.text(30, length, tmpRecommend[1].slice(1));
+            count2 = count2 + 1;
+          } else {
+            const column2 = Object.keys(pages.data[key3][0]);
+            let row2 = [];
+            pages.data[key3].forEach((element2) => {
+              var childData2 = [];
+              Object.keys(element2).forEach(function (key4) {
+                childData2.push(element2[key4]);
+              });
+              row2.push(childData2);
+            });
+            length = length + 40;
+            pdf.text(50, length, columnsMain2[count2] + ":");
+            length = length + 20;
+            pdf.autoTable(column2, row2, {
+              startY: length,
+              theme: "grid",
+              styles: {
+                font: font,
+                halign: "center",
+                cellPadding: 3.5,
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+                textColor: [0, 0, 0],
+              },
+              headStyles: {
+                textColor: [0, 0, 0],
+                fontStyle: "normal",
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+                fillColor: [166, 204, 247],
+              },
+              alternateRowStyles: {
+                fillColor: [212, 212, 212],
+                textColor: [0, 0, 0],
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+              },
+              rowStyles: {
+                lineWidth: 0.5,
+                lineColor: [0, 0, 0],
+              },
+              tableLineColor: [0, 0, 0],
+              didDrawPage: (d) => (length = d.cursor.y),
+            });
+            count2 = count2 + 1;
+          }
         });
-        let rows4 = [];
-        pages.data.insurance.forEach((element) => {
-          let tmp4 = [element.product, element.coverage, element.premium];
-          rows4.push(tmp4);
-        });
-        pdf.text(50, length, columnsMain2[0] + ":");
-        pages.data.priorities.forEach((element) => {
-          length = length + 20;
-          pdf.text(50, length, "- " + element);
-        });
-        length = length + 40;
-        pdf.text(50, length, columnsMain2[1] + ":");
-        length = length + 20;
-        pdf.autoTable(columns3, rows3, {
-          startY: length,
-          theme: "grid",
-          styles: {
-            font: font,
-            halign: "center",
-            cellPadding: 3.5,
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            textColor: [0, 0, 0],
-          },
-          headStyles: {
-            textColor: [0, 0, 0],
-            fontStyle: "normal",
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            fillColor: [166, 204, 247],
-          },
-          alternateRowStyles: {
-            fillColor: [212, 212, 212],
-            textColor: [0, 0, 0],
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          rowStyles: {
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          tableLineColor: [0, 0, 0],
-          didDrawPage: (d) => (length = d.cursor.y),
-        });
-        length = length + 40;
-        pdf.text(50, length, columnsMain2[2] + ":");
-        length = length + 20;
-        pdf.autoTable(columns4, rows4, {
-          startY: length,
-          theme: "grid",
-          styles: {
-            font: font,
-            halign: "center",
-            cellPadding: 3.5,
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            textColor: [0, 0, 0],
-          },
-          headStyles: {
-            textColor: [0, 0, 0],
-            fontStyle: "normal",
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-            fillColor: [166, 204, 247],
-          },
-          alternateRowStyles: {
-            fillColor: [212, 212, 212],
-            textColor: [0, 0, 0],
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          rowStyles: {
-            lineWidth: 0.5,
-            lineColor: [0, 0, 0],
-          },
-          tableLineColor: [0, 0, 0],
-          didDrawPage: (d) => (length = d.cursor.y),
-        });
-        length = length + 40;
-        let tmpRecommend = pages.data.recommendations.split(",");
-        pdf.text(50, length, columnsMain2[3] + ":");
-        length = length + 20;
-        pdf.text(30, length, tmpRecommend[0] + ",");
-        length = length + 20;
-        pdf.text(30, length, tmpRecommend[1].slice(1));
       }
       if (isImage) {
         pdf.setPage(3);
