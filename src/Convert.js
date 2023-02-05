@@ -16,6 +16,10 @@ import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import OpenPDF from "react-password-protected-pdf-viewer";
 import { JsonEditor as Editor } from "jsoneditor-react";
 import "jsoneditor-react/es/editor.min.css";
+import JSONInput from "react-json-editor-ajrm/index";
+import locale from "react-json-editor-ajrm/locale/en";
+import { JSONEditor } from "react-json-editor-viewer";
+import { JsonEditor } from "rc-json-editor";
 import Base64 from "./Base64.json";
 import JSONtest from "./JSONtest.json";
 import JSONtestComplex from "./JSONtestComplex.json";
@@ -452,6 +456,10 @@ const Convert = () => {
     setJsonData(JSONtestComplex.report);
   }, []);
 
+  useEffect(() => {
+    console.log("json data ", jsonData);
+  }, [jsonData]);
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -465,59 +473,16 @@ const Convert = () => {
                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.2.146/build/pdf.worker.min.js">
                   {isViewPDF && (
                     <div>
-                      {!isAuthenticate && (
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexDirection: "column",
-                            height: "100%",
-                            width: "100%",
-                          }}
-                        >
-                          <div style={{ width: "20rems" }}>
-                            <div style={{ marginBottom: "0.5rem" }}>
-                              <label>PASSWORD</label>
-                              <FormGroup>
-                                <input
-                                  name="password"
-                                  type={"password"}
-                                  value={password}
-                                  onChange={(event) => {
-                                    setPassword(event.target.value);
-                                  }}
-                                />
-                              </FormGroup>
-                            </div>
-                            {isWrongPass && (
-                              <div
-                                style={{
-                                  color: "c02424",
-                                  marginBottom: "0.5rem",
-                                }}
-                              >
-                                The password is invalid. Please try again!
-                              </div>
-                            )}
-                            <button onClick={() => handleSubmitPassword()}>
-                              Submit
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      {isAuthenticate && (
-                        <div style={{ height: "750px" }}>
-                          <Viewer
-                            fileUrl={urlPDF}
-                            renderProtectedView={(renderProps) => (
-                              <ProtectedView {...renderProps} />
-                            )}
-                            onDocumentAskPassword={handleAskPassword}
-                            // plugins={[defaultLayoutPluginInstance]}
-                          />
-                        </div>
-                      )}
+                      <div style={{ height: "750px" }}>
+                        <Viewer
+                          fileUrl={urlPDF}
+                          renderProtectedView={(renderProps) => (
+                            <ProtectedView {...renderProps} />
+                          )}
+                          onDocumentAskPassword={handleAskPassword}
+                          // plugins={[defaultLayoutPluginInstance]}
+                        />
+                      </div>
                     </div>
                   )}
                   {!isViewPDF && <div></div>}
@@ -525,12 +490,34 @@ const Convert = () => {
               </Row>
               {jsonData && (
                 <Row>
-                  <Editor
+                  {/* <Editor
                     value={jsonData}
                     onChange={(event) => {
                       setJsonData(event);
                       GeneratePDFv2(
                         event,
+                        isHeader,
+                        isFooter,
+                        fontPDF,
+                        fontSizePDF
+                      );
+                    }}
+                  /> */}
+                  <JSONInput
+                    placeholder={jsonData}
+                    locale={locale}
+                    theme="dark_vscode_tribute"
+                    height="200px"
+                    width="100%"
+                    viewOnly={false}
+                    confirmGood={true}
+                    onKeyPressUpdate={true}
+                    waitAfterKeyPress={500}
+                    onBlur={(event) => {
+                      console.log("event blur ", event);
+                      setJsonData(event.jsObject);
+                      GeneratePDFv2(
+                        event.jsObject,
                         isHeader,
                         isFooter,
                         fontPDF,
