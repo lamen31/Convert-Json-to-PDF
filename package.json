@@ -18,6 +18,7 @@
     "jspdf-autotable": "^3.5.28",
     "moment-timezone": "^0.5.40",
     "node-qpdf": "^1.0.3",
+    "node-qpdf2": "^4.1.0",
     "pdfjs-dist": "^3.2.146",
     "pdfkit": "^0.13.0",
     "rc-json-editor": "^2.0.26",
@@ -28,13 +29,14 @@
     "react-password-protected-pdf-viewer": "^1.0.9",
     "react-scripts": "5.0.1",
     "reactstrap": "^9.1.5",
+    "stream": "^0.0.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [

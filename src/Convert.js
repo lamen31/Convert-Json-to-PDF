@@ -26,6 +26,11 @@ import JSONtestComplex from "./JSONtestComplex.json";
 import { Col, Container, FormGroup, Label, Row } from "reactstrap";
 import moment from "moment";
 import "moment-timezone";
+// var qpdf = require("node-qpdf");
+// import { encrypt } from "node-qpdf2";
+// const Processor = require("encrypt-decrpt-pdf").PDFProcessor;
+// const fs = require("fs");
+// const path = require("path");
 
 const ProtectedView: React.FC<RenderProtectedViewProps> = ({
   passwordStatus,
@@ -81,15 +86,27 @@ const Convert = () => {
   const [fontSizePDF, setFontSizePDF] = useState();
   const [imageb64, setImageb64] = useState();
   const [password, setPassword] = useState();
+  const [jsonData, setJsonData] = useState();
   const [isImage, setIsImage] = useState(false);
   const [isHeader, setIsHeader] = useState(false);
   const [isFooter, setIsFooter] = useState(false);
   const [isAuthenticate, setIsAuthenticate] = useState(false);
   const [isWrongPass, setIsWrongPass] = useState(false);
-  const [jsonData, setJsonData] = useState();
+  const [isEncrypt, setIsEncrypt] = useState(false);
   const [isViewPDF, setIsViewPDF] = useState(false);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const pdf = new jsPDF("p", "pt", "a4");
+  var options = {
+    keyLength: 128,
+    password: "123456",
+    outputFile: "encrypted_pdf",
+    restrictions: {
+      print: "low",
+      modify: "none",
+      extract: "n",
+      accessibility: "n",
+    },
+  };
 
   const handleAskPassword = (e: DocumentAskPasswordEvent) => {
     e.verifyPassword("123456");
@@ -293,10 +310,10 @@ const Convert = () => {
               fontStyle: "normal",
               lineWidth: 0.5,
               lineColor: [0, 0, 0],
-              fillColor: [166, 204, 247],
+              fillColor: [212, 212, 212],
             },
             alternateRowStyles: {
-              fillColor: [212, 212, 212],
+              fillColor: [255, 255, 255],
               textColor: [0, 0, 0],
               lineWidth: 0.5,
               lineColor: [0, 0, 0],
@@ -362,10 +379,10 @@ const Convert = () => {
                 fontStyle: "normal",
                 lineWidth: 0.5,
                 lineColor: [0, 0, 0],
-                fillColor: [166, 204, 247],
+                fillColor: [212, 212, 212],
               },
               alternateRowStyles: {
-                fillColor: [212, 212, 212],
+                fillColor: [255, 255, 255],
                 textColor: [0, 0, 0],
                 lineWidth: 0.5,
                 lineColor: [0, 0, 0],
@@ -421,8 +438,37 @@ const Convert = () => {
         "convert_json_to_pdf_" +
         moment(new Date()).tz("Asia/Jakarta").format("DD-MM-YYYY HH:mm:ss.SSS");
     }
-    pdf.save(name_file + ".pdf");
+    await pdf.save(name_file + ".pdf");
+    if (filenamePDF) {
+      setFilenamePDF(name_file);
+    }
+    setIsEncrypt(true);
+    // EncryptPDF(name_file);
   };
+
+  // const EncryptPDF = async (filename) => {
+  //   console.log("encrypt pdf");
+  //   // var doc = qpdf.encrypt(
+  //   //   // "C:/Users/user/Downloads" + filename + ".pdf",
+  //   //   "Downloads" + filename + ".pdf",
+  //   //   options
+  //   //   // "C:/Users/user/Downloads" + filename + "_encrypted.pdf"
+  //   //   // "Downloads" + filename + "_encrypted.pdf"
+  //   // );
+  //   const options = {
+  //     input: "C:/Users/user/Downloads" + filename + ".pdf",
+  //     keyLength: 128,
+  //     output: "C:/Users/user/Downloads" + filename + "_encrypted.pdf",
+  //     password: "123456",
+  //     restrictions: {
+  //       print: "low",
+  //       modify: "none",
+  //       extract: "n",
+  //       accessibility: "n",
+  //     },
+  //   };
+  //   await encrypt(options);
+  // };
 
   useEffect(() => {
     if (imageb64) {
@@ -455,10 +501,6 @@ const Convert = () => {
     setFontSizePDF(16);
     setJsonData(JSONtestComplex.report);
   }, []);
-
-  useEffect(() => {
-    console.log("json data ", jsonData);
-  }, [jsonData]);
 
   return (
     <React.Fragment>
@@ -704,6 +746,24 @@ const Convert = () => {
                     GENERATE
                   </button>
                 </Col>
+                {isEncrypt && (
+                  <Col>
+                    <button
+                      onClick={() => {
+                        // GeneratePDFv2(
+                        //   jsonData,
+                        //   isHeader,
+                        //   isFooter,
+                        //   fontPDF,
+                        //   fontSizePDF
+                        // );
+                        // EncryptPDF(filenamePDF);
+                      }}
+                    >
+                      ENCRYPT
+                    </button>
+                  </Col>
+                )}
               </Row>
             </Col>
           </Row>
