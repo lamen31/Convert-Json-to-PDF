@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@pdftron/pdfnet-node": "^9.4.2",
     "@react-pdf-viewer/core": "^3.11.0",
     "@react-pdf-viewer/default-layout": "^3.10.0",
     "@react-pdf/pdfkit": "^3.0.1",
@@ -29,6 +30,7 @@
     "react-password-protected-pdf-viewer": "^1.0.9",
     "react-scripts": "5.0.1",
     "reactstrap": "^9.1.5",
+    "socket.io-client": "^4.6.0",
     "stream": "^0.0.2",
     "web-vitals": "^2.1.4"
   },

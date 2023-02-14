@@ -31,6 +31,8 @@ import "moment-timezone";
 // const Processor = require("encrypt-decrpt-pdf").PDFProcessor;
 // const fs = require("fs");
 // const path = require("path");
+// const { PDFNet } = require("@pdftron/pdfnet-node");
+const { io } = require("socket.io-client");
 
 const ProtectedView: React.FC<RenderProtectedViewProps> = ({
   passwordStatus,
@@ -96,6 +98,11 @@ const Convert = () => {
   const [isViewPDF, setIsViewPDF] = useState(false);
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const pdf = new jsPDF("p", "pt", "a4");
+  const socket = io("http://localhost:5000", {
+    transports: ["websocket"],
+    autoConnect: false,
+    reconnection: false,
+  });
   var options = {
     keyLength: 128,
     password: "123456",
@@ -105,6 +112,26 @@ const Convert = () => {
       modify: "none",
       extract: "n",
       accessibility: "n",
+    },
+  };
+  var fonts = {
+    Times: {
+      normal: "Fonts/times.ttf",
+      bold: "Fonts/timesbd.ttf",
+      italics: "Fonts/timesi.ttf",
+      bolditalics: "Fonts/timesbi.ttf",
+    },
+    Courier: {
+      normal: "Fonts/cour.ttf",
+      bold: "Fonts/courbd.ttf",
+      italics: "Fonts/couri.ttf",
+      bolditalics: "Fonts/courbi.ttf",
+    },
+    Helvetica: {
+      normal: "Fonts/Helvetica.ttf",
+      bold: "Fonts/Helvetica-Bold.ttf",
+      italics: "Fonts/Helvetica-Oblique.ttf",
+      bolditalics: "Fonts/Helvetica-BoldOblique.ttf",
     },
   };
 
@@ -446,29 +473,48 @@ const Convert = () => {
     // EncryptPDF(name_file);
   };
 
-  // const EncryptPDF = async (filename) => {
-  //   console.log("encrypt pdf");
-  //   // var doc = qpdf.encrypt(
-  //   //   // "C:/Users/user/Downloads" + filename + ".pdf",
-  //   //   "Downloads" + filename + ".pdf",
-  //   //   options
-  //   //   // "C:/Users/user/Downloads" + filename + "_encrypted.pdf"
-  //   //   // "Downloads" + filename + "_encrypted.pdf"
-  //   // );
-  //   const options = {
-  //     input: "C:/Users/user/Downloads" + filename + ".pdf",
-  //     keyLength: 128,
-  //     output: "C:/Users/user/Downloads" + filename + "_encrypted.pdf",
-  //     password: "123456",
-  //     restrictions: {
-  //       print: "low",
-  //       modify: "none",
-  //       extract: "n",
-  //       accessibility: "n",
-  //     },
-  //   };
-  //   await encrypt(options);
-  // };
+  const EncryptPDF = async (filename) => {
+    console.log("encrypt pdf");
+    let inputPath = "C:/Users/user/Downloads/";
+    let outputPath = "C:/Users/user/Downloads/";
+    // var doc = qpdf.encrypt(
+    //   // "C:/Users/user/Downloads" + filename + ".pdf",
+    //   "Downloads" + filename + ".pdf",
+    //   options
+    //   // "C:/Users/user/Downloads" + filename + "_encrypted.pdf"
+    //   // "Downloads" + filename + "_encrypted.pdf"
+    // );
+    // const options = {
+    //   input: "C:/Users/user/Downloads" + filename + ".pdf",
+    //   keyLength: 128,
+    //   output: "C:/Users/user/Downloads" + filename + "_encrypted.pdf",
+    //   password: "123456",
+    //   restrictions: {
+    //     print: "low",
+    //     modify: "none",
+    //     extract: "n",
+    //     accessibility: "n",
+    //   },
+    // };
+    // await encrypt(options);
+    // const doc = await PDFNet.PDFDoc.createFromFilePath(
+    //   inputPath + filename + ".pdf"
+    // );
+
+    // const custom_id = 123456789;
+    // const custom_handler = await PDFNet.PDFTronCustomSecurityHandler.create(
+    //   custom_id
+    // );
+
+    // const pass = "test";
+    // await custom_handler.changeUserPasswordUString(pass);
+
+    // doc.setSecurityHandler(custom_handler);
+    // await doc.save(
+    //   outputPath + filename + "_enc.pdf",
+    //   PDFNet.SDFDoc.SaveOptions.e_linearized
+    // );
+  };
 
   useEffect(() => {
     if (imageb64) {
@@ -496,6 +542,18 @@ const Convert = () => {
   }, [listFont]);
 
   useEffect(() => {
+    // socket.connect();
+    // socket.on("connect", () => {
+    //   console.log(socket.id);
+    //   socket.on("hello", (arg) => {
+    //     console.log("received: hello ", arg);
+    //   });
+    //   socket.emit("hello", "server");
+    //   if (socket.connected) {
+    //     console.log("handshake success!");
+    //   }
+    // });
+
     setIsViewPDF(false);
     setListFont(pdf.getFontList());
     setFontSizePDF(16);
@@ -746,7 +804,7 @@ const Convert = () => {
                     GENERATE
                   </button>
                 </Col>
-                {isEncrypt && (
+                {/* {isEncrypt && (
                   <Col>
                     <button
                       onClick={() => {
@@ -757,13 +815,13 @@ const Convert = () => {
                         //   fontPDF,
                         //   fontSizePDF
                         // );
-                        // EncryptPDF(filenamePDF);
+                        EncryptPDF(filenamePDF);
                       }}
                     >
                       ENCRYPT
                     </button>
                   </Col>
-                )}
+                )} */}
               </Row>
             </Col>
           </Row>

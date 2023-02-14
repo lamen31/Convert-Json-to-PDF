@@ -1,0 +1,11 @@
+prefix=C:/Program Files (x86)/xz
+exec_prefix=${prefix}
+libdir=C:/Program Files (x86)/xz/lib
+includedir=C:/Program Files (x86)/xz/include
+
+Name: libqpdf
+Description: PDF transformation library
+Version: 11.3.0
+Requires.private: zlib, libjpeg, openssl >= 1.1.0, gnutls
+Libs: -L${libdir} -lqpdf
+Cflags: -I${includedir}
